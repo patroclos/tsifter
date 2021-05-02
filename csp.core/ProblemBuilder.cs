@@ -17,7 +17,7 @@ namespace csp {
 		public IConstraint AddConstraint(ITerm<bool> term) {
 			var constraint = term is IConstraint c ? c : new TermConstraint(term);
 
-			foreach(var v in term.Dependencies)
+			foreach(var v in term.Scope)
 				Variables.Add(v);
 
 			Constraints.Add(constraint);

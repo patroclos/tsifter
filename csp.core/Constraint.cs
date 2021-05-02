@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace csp {
 	public interface IConstraint : ITerm<bool> {
@@ -12,7 +13,7 @@ namespace csp {
 			Term = term;
 		}
 
-		public IEnumerable<IVariable> Dependencies => Term.Dependencies;
+		public ImmutableList<IVariable> Scope => Term.Scope;
 
 		public bool Evaluate(Problem p, Assignment a) => (bool)Term.Evaluate(p, a);
 

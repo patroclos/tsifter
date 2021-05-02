@@ -1,29 +1,30 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace csp {
 	public class DelegateTerm<T> : ITerm<T> {
-		private readonly IReadOnlyCollection<IVariable> _deps;
-		private readonly Func<Problem, Assignment, T> _reader;
+		internal List<IVariable> ScopeSet;
+		private readonly Func<DelegateTerm<T>, Problem, Assignment, T> _reader;
 
-		public DelegateTerm(IReadOnlyCollection<IVariable> deps, Func<Problem, Assignment, T> reader) {
-			_deps = deps;
+		public DelegateTerm(List<IVariable> deps, Func<DelegateTerm<T>, Problem, Assignment, T> reader) {
+			ScopeSet = deps;
 			_reader = reader;
 		}
 
-		public IEnumerable<IVariable> Dependencies => _deps;
+		public ImmutableList<IVariable> Scope => ScopeSet.ToImmutableList();
 
 		public T Evaluate(Problem p, Assignment a) {
-			return _reader(p, a);
+			return _reader(this, p, a);
 		}
 	}
 
 	public static class TermExtensions {
 		public static ITerm<O> Select<A, O>(this ITerm<A> a, Func<A, O> map)
 		=> new DelegateTerm<O>(
-				Dependencies(a),
-				(p, ass) => map(a.Evaluate(p, ass))
+				Scope(a),
+				(_, p, ass) => map(a.Evaluate(p, ass))
 			);
 
 		public static ITerm<TRes> SelectMany<TSource, TColl, TRes>(
@@ -32,17 +33,21 @@ namespace csp {
 			Func<TSource, TColl, TRes> project
 		)
 		=> new DelegateTerm<TRes>(
-			Dependencies(source),
-			(p, ass) => {
-				var val = source.Evaluate(p, ass);
-				return project(val, bind(val).Evaluate(p, ass));
+			Scope(source),
+			(self, p, ass) => {
+				var sourceVal = source.Evaluate(p, ass);
+				var term = bind(sourceVal);
+				foreach (var v in term.Scope)
+					self.ScopeSet.Add(v);
+
+				return project(sourceVal, term.Evaluate(p, ass));
 			}
 		);
 
-		public static IVariable[] Dependencies(params ITerm[] terms)
-			=> terms.SelectMany(t => t.Dependencies)
+		public static List<IVariable> Scope(params ITerm[] terms)
+			=> terms.SelectMany(t => t.Scope)
 			.Distinct()
-			.ToArray();
+			.ToList();
 
 		public static ITerm<bool> Gt<T>(this ITerm<T> a, T val) where T : IComparable<T>
 			=> from A in a select A.CompareTo(val) > 0;

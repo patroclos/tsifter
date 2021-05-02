@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 
 namespace csp {
-	public readonly struct Assignment {
+	public class Assignment {
 		public readonly ImmutableDictionary<IVariable, object> Values;
 
 		public object this[IVariable v] => Values[v];
@@ -13,5 +13,7 @@ namespace csp {
 		}
 
 		public bool IsCompleteFor(Problem p) => p.Variables.All(Values.ContainsKey);
+
+		public override string ToString() => "{ " + string.Join(", ", Values.Select(kv => $"{kv.Key} => {kv.Value}")) + "}";
 	}
 }

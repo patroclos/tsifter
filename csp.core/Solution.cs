@@ -1,7 +1,7 @@
 namespace csp {
 	public class Solution {
-		private readonly Problem Problem;
-		private readonly Assignment Assignment;
+		public readonly Problem Problem;
+		public readonly Assignment Assignment;
 
 		public Solution(Problem problem, Assignment assignment) {
 			if(!assignment.IsCompleteFor(problem))

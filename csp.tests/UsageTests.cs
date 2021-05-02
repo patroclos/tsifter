@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -5,6 +6,7 @@ using Xunit;
 
 namespace csp.tests {
 	public class UsageTests {
+
 		[Fact]
 		public void UsecaseAB() {
 			var prob = new ProblemBuilder();
@@ -53,6 +55,24 @@ namespace csp.tests {
 			});
 
 			Assert.True(problem.IsSatisfiedBy(ass));
+		}
+
+		[Fact]
+		public void SolverBasic() {
+			var prob = new ProblemBuilder();
+			var a = prob.AddVariable<int>(Enumerable.Range(1, 4), "a");
+			var b = prob.AddVariable<int>(Enumerable.Range(-5, 1000).Where(x => x % 2 == 0), "b");
+
+			var aEqBConstraint = prob.AddConstraint(new EqConstraint<int>(a, b));
+
+			var problem = prob.Build();
+
+			var solver = new AC3Solver(problem);
+			var solutions = solver.Solutions().Select(s => s.Assignment).ToArray();
+
+			Assert.NotNull(solutions);
+			Assert.NotEmpty(solutions);
+			Assert.Equal(2, solutions.Length);
 		}
 	}
 }
