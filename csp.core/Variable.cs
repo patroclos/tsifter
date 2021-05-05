@@ -1,22 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 
 namespace csp {
-
-	public interface ITerm {
-		// TODO: use ImmutableSortedSet
-		ImmutableList<IVariable> Scope { get; }
-
-		object Evaluate(Problem p, Assignment a);
-	}
-
-	public interface ITerm<T> : ITerm {
-		new T Evaluate(Problem p, Assignment a);
-
-		object ITerm.Evaluate(Problem p, Assignment a) => (object)Evaluate(p, a);
-	}
-
 
 	public interface IVariable : ITerm {
 		Type ValueType { get; }

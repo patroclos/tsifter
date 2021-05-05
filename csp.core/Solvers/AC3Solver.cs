@@ -25,7 +25,7 @@ namespace csp {
 
 			// assert every constraint has 2 scope entries
 			foreach (var c in _problem.Constraints)
-				Debug.Assert(c.Scope.Count == 2);
+				Debug.Assert(c.Scope.Count == 2, $"{c} is not a binary constraint");
 
 
 			// create 2 arcs per constraint in both directions

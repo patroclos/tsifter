@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 
 namespace csp {
@@ -10,8 +9,8 @@ namespace csp {
 
 		Type IVariable.ValueType => typeof(T);
 
-		private ImmutableList<IVariable>? _scope;
-		public ImmutableList<IVariable> Scope => _scope ?? (_scope = new IVariable[]{this}.ToImmutableList());
+		private List<IVariable>? _scope;
+		public List<IVariable> Scope => _scope ?? (_scope = new List<IVariable>(){this});
 
 		IEnumerable<T> IVariable<T>.Domain => Domain;
 

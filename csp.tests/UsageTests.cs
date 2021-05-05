@@ -73,6 +73,86 @@ namespace csp.tests {
 			Assert.NotNull(solutions);
 			Assert.NotEmpty(solutions);
 			Assert.Equal(2, solutions.Length);
+			Assert.Equal(2, solutions[0].Values[a]);
+			Assert.Equal(2, solutions[0].Values[b]);
+			Assert.Equal(4, solutions[1].Values[a]);
+			Assert.Equal(4, solutions[1].Values[b]);
+		}
+
+		[Fact]
+		public void SendMoreMoney() {
+			var prob = new ProblemBuilder();
+			var domain = Enumerable.Range(0, 10000);
+
+			var vars = "send more money".ToCharArray()
+				.Distinct()
+				.ToDictionary(c => c, c => prob.AddVariable<int>(domain, $"'{c}'"));
+			var carries = Enumerable.Range(0, 4).Select(i => prob.AddVariable<int>(Enumerable.Range(0, 10))).ToList();
+
+			var allDiff = Term.All(vars.Values.ToArray()).Select(vals => vals.Distinct().Count() == vals.Length);
+			prob.AddConstraint(allDiff);
+			prob.AddConstraint(from d in vars['d'] from e in vars['e'] from y in vars['y'] from c0 in carries[0] select d + e == (10 * c0) + y);
+			prob.AddConstraint(from n in vars['n'] from r in vars['r'] from e in vars['e'] from c0 in carries[0] from c1 in carries[1] select n + r + c0 == (10 * c1) + e);
+			prob.AddConstraint(from e in vars['e'] from o in vars['o'] from n in vars['n'] from c1 in carries[1] from c2 in carries[2] select e + o + c1 == (10 * c2) + n);
+			prob.AddConstraint(from s in vars['s'] from m in vars['m'] from o in vars['o'] from c2 in carries[2] from c3 in carries[3] select s + m + c2 == (10 * c3) + o);
+			prob.AddConstraint(from c3 in carries[3] from m in vars['m'] select c3 == m);
+
+
+			var problem = prob.Build();
+
+			var solver = new STR2Solver(problem);
+
+			foreach (var solution in solver.GetSolutions()) {
+				Assert.NotNull(solution);
+				// TODO: verify correctness
+				Console.WriteLine(solution.Assignment);
+			}
+		}
+
+		public enum Color {
+			Red,
+			Green,
+			Blue
+		}
+
+		[Fact]
+		public void Australia() {
+			var prob = new ProblemBuilder();
+			var west = prob.AddVariable<Color>(Enum.GetValues<Color>(), "Western Australia");
+			var north = prob.AddVariable<Color>(Enum.GetValues<Color>(), "Northern Territory");
+			var south = prob.AddVariable<Color>(Enum.GetValues<Color>(), "South Australia");
+			var queensland = prob.AddVariable<Color>(Enum.GetValues<Color>(), "Queensland");
+			var newSouth = prob.AddVariable<Color>(Enum.GetValues<Color>(), "New South Wales");
+			var victoria = prob.AddVariable<Color>(Enum.GetValues<Color>(), "Victoria");
+			var tansania = prob.AddVariable<Color>(Enum.GetValues<Color>(), "Tansania");
+
+			var neighbours = new[]{
+				(west, north),
+				(west, south),
+				(north, south),
+				(north, queensland),
+				(south, queensland),
+				(south, newSouth),
+				(south, victoria),
+				(queensland, newSouth),
+				(newSouth, victoria)
+			};
+
+			foreach (var pair in neighbours){
+				// prob.AddConstraint((from a in pair.Item1 from b in pair.Item2 select a != b).Scope);
+				var x = from a in pair.Item1 from b in pair.Item2 select a != b;
+				x.Scope.Clear();
+				x.Scope.Add(pair.Item1);
+				x.Scope.Add(pair.Item2);
+				prob.AddConstraint(x);
+			}
+
+			var problem = prob.Build();
+
+			var solver = new AC3Solver(problem);
+			var solution = solver.Solutions().ToArray();
+
+			Console.WriteLine(string.Join("\n", solution.Select(x => x.Assignment.ToString())));
 		}
 	}
 }
