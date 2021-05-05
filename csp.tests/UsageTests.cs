@@ -160,7 +160,7 @@ namespace csp.tests {
 		public void CompareToCspNet() {
 			var prob = new ProblemBuilder();
 			var vars = Enumerable.Range(1, 8).Select(i => prob.AddVariable<int>(Enumerable.Range(1, 8), $"Var {i}")).ToArray();
-			prob.AddConstraint(new AllDiffConstraint(vars));
+			prob.AddConstraint(new AllDiffConstraint<int>(vars));
 		}
 	}
 }
