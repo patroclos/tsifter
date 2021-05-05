@@ -86,16 +86,17 @@ namespace csp.tests {
 
 			var vars = "send more money".ToCharArray()
 				.Distinct()
-				.ToDictionary(c => c, c => prob.AddVariable<int>(domain, $"'{c}'"));
+				.SelectVariableTable(c => prob.AddVariable<int>(domain, $"'{c}'"));
 			var carries = Enumerable.Range(0, 4).Select(i => prob.AddVariable<int>(Enumerable.Range(0, 10))).ToList();
 
-			var allDiff = Term.All(vars.Values.ToArray()).Select(vals => vals.Distinct().Count() == vals.Length);
-			prob.AddConstraint(allDiff);
+			prob.AddConstraint(new AllDiffConstraint<int>(vars.Values.ToArray()));
 			prob.AddConstraint(from d in vars['d'] from e in vars['e'] from y in vars['y'] from c0 in carries[0] select d + e == (10 * c0) + y);
 			prob.AddConstraint(from n in vars['n'] from r in vars['r'] from e in vars['e'] from c0 in carries[0] from c1 in carries[1] select n + r + c0 == (10 * c1) + e);
 			prob.AddConstraint(from e in vars['e'] from o in vars['o'] from n in vars['n'] from c1 in carries[1] from c2 in carries[2] select e + o + c1 == (10 * c2) + n);
 			prob.AddConstraint(from s in vars['s'] from m in vars['m'] from o in vars['o'] from c2 in carries[2] from c3 in carries[3] select s + m + c2 == (10 * c3) + o);
 			prob.AddConstraint(from c3 in carries[3] from m in vars['m'] select c3 == m);
+
+			var (a,b) = Tuple.Create<int, int>(5,5);
 
 
 			var problem = prob.Build();
@@ -138,7 +139,7 @@ namespace csp.tests {
 				(newSouth, victoria)
 			};
 
-			foreach (var pair in neighbours){
+			foreach (var pair in neighbours) {
 				// prob.AddConstraint((from a in pair.Item1 from b in pair.Item2 select a != b).Scope);
 				var x = from a in pair.Item1 from b in pair.Item2 select a != b;
 				x.Scope.Clear();
@@ -153,6 +154,13 @@ namespace csp.tests {
 			var solution = solver.Solutions().ToArray();
 
 			Console.WriteLine(string.Join("\n", solution.Select(x => x.Assignment.ToString())));
+		}
+
+		[Fact]
+		public void CompareToCspNet() {
+			var prob = new ProblemBuilder();
+			var vars = Enumerable.Range(1, 8).Select(i => prob.AddVariable<int>(Enumerable.Range(1, 8), $"Var {i}")).ToArray();
+			prob.AddConstraint(new AllDiffConstraint(vars));
 		}
 	}
 }

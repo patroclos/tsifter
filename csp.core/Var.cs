@@ -26,5 +26,10 @@ namespace csp {
 		public override string ToString() => $"Var<{typeof(T).FullName}>" + (string.IsNullOrEmpty(Name) ? string.Empty : $" ('{Name}')");
 	}
 
+	public static class VarExtensions {
+		public static Dictionary<A, IVariable<V>> SelectVariableTable<A, V>(this IEnumerable<A> self, Func<A, IVariable<V>> map)
+			=> self.ToDictionary(a => a, map);
+	}
+
 }
 

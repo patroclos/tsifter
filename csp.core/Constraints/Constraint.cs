@@ -6,15 +6,15 @@ namespace csp {
 	}
 
 	public class TermConstraint : IConstraint {
-		public readonly ITerm Term;
+		public readonly ITerm ConstraintTerm;
 
 		public TermConstraint(ITerm term) {
-			Term = term;
+			ConstraintTerm = term;
 		}
 
-		public List<IVariable> Scope => Term.Scope;
+		public List<IVariable> Scope => ConstraintTerm.Scope;
 
-		public bool Evaluate(Problem p, Assignment a) => (bool)Term.Evaluate(p, a);
+		public bool Evaluate(Problem p, Assignment a) => (bool)ConstraintTerm.Evaluate(p, a);
 
 		public bool IsSatisfiedBy(Problem p, Assignment a) => Evaluate(p, a);
 	}
