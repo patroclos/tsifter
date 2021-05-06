@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -10,6 +11,14 @@ namespace csp {
 
 		public Assignment(IDictionary<IVariable, object> values) {
 			Values = values.ToImmutableDictionary();
+		}
+
+		public T Read<T>(IVariable<T> variable) {
+			return (T)Values[variable];
+		}
+
+		public Assignment Rebuild(Func<ImmutableDictionary<IVariable, object>, ImmutableDictionary<IVariable, object>> map) {
+			return new Assignment(map(Values));
 		}
 
 		public bool IsCompleteFor(Problem p) => p.Variables.All(Values.ContainsKey);

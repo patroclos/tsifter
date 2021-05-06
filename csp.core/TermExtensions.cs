@@ -43,6 +43,19 @@ namespace csp {
 		  );
 		}
 
+		public static ITerm<T> SetScope<T>(this ITerm<T> self, params IVariable[] scope) {
+			self.Scope.Clear();
+			self.Scope.AddRange(scope);
+
+			return self;
+		}
+
+		// TODO: return a new wrapper and leave the old scope unchanged?
+		public static ITerm<T> ConfigureScope<T>(this ITerm<T> self, Action<List<IVariable>> cb) {
+			cb(self.Scope);
+			return self;
+		}
+
 		public static List<IVariable> Scope(params ITerm[] terms)
 			=> terms.SelectMany(t => t.Scope)
 			.Distinct()
