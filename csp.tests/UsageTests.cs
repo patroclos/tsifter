@@ -4,32 +4,29 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Xunit;
+using Xunit.Abstractions;
 
 namespace csp.tests; 
 
 public class UsageTests {
+	private readonly ITestOutputHelper _testOutputHelper;
 
-	/*
-	[Fact]
-	public void BinarizationExists() {
-		var prob = new ProblemBuilder();
-		var problem = prob.Build();
-		var bin = problem.ToBinaryProblem();
+	public UsageTests(ITestOutputHelper testOutputHelper) {
+		_testOutputHelper = testOutputHelper;
 	}
-	*/
 
 	[Fact]
 	public void UsecaseAB() {
 		var prob = new ProblemBuilder();
-		var a = prob.AddVariable<int>(Enumerable.Range(1, 5), "a");
-		var b = prob.AddVariable<int>(Enumerable.Range(-5, 10).Where(x => x % 2 == 0), "b");
+		var a = prob.AddVariable(Enumerable.Range(1, 5), "a");
+		var b = prob.AddVariable(Enumerable.Range(-5, 10).Where(x => x % 2 == 0), "b");
 
 		var aEqBConstraint = prob.AddConstraint(a.Eq(b));
 
 		var problem = prob.Build();
 
 		Assert.Equal(2, problem.Variables.Count);
-		Assert.Equal(1, problem.Constraints.Count);
+		Assert.Single(problem.Constraints);
 
 		var assignment = new Assignment(new Dictionary<IVariable, object> {
 			{a, 1},
@@ -49,8 +46,8 @@ public class UsageTests {
 	[Fact]
 	public void MixedTypes() {
 		var prob = new ProblemBuilder();
-		var x = prob.AddVariable<int>(Enumerable.Range(0, 10), "x");
-		var name = prob.AddVariable<string>(new[] { "Hans", "Erik", "Jan" }, "name");
+		var x = prob.AddVariable(Enumerable.Range(0, 10), "x");
+		var name = prob.AddVariable(new[] { "Hans", "Erik", "Jan" }, "name");
 
 		var nameLenEqX = prob.AddConstraint(
 			from _x in x
@@ -71,8 +68,8 @@ public class UsageTests {
 	[Fact]
 	public void SolverBasic() {
 		var prob = new ProblemBuilder();
-		var a = prob.AddVariable<int>(Enumerable.Range(1, 4), "a");
-		var b = prob.AddVariable<int>(Enumerable.Range(-5, 1000).Where(x => x % 2 == 0), "b");
+		var a = prob.AddVariable(Enumerable.Range(1, 4), "a");
+		var b = prob.AddVariable(Enumerable.Range(-5, 1000).Where(x => x % 2 == 0), "b");
 
 		var aEqBConstraint = prob.AddConstraint(new EqConstraint<int>(a, b));
 
@@ -98,7 +95,7 @@ public class UsageTests {
 		var vars = "send more money".ToCharArray()
 			.Distinct()
 			.Where(x => x != ' ')
-			.SelectVariableTable(c => prob.AddVariable<int>(domain, $"'{c}'"));
+			.SelectVariableTable(c => prob.AddVariable(domain, $"'{c}'"));
 		var carries = Enumerable.Range(0, 4).Select(i => prob.AddVariable<int>(Enumerable.Range(0, 10))).ToList();
 
 		prob.AddConstraint(new AllDiffConstraint<int>(vars.Values.ToArray()).SetScope(vars.Values.ToArray()));
@@ -150,11 +147,11 @@ public class UsageTests {
 		foreach (var solution in solver.GetSolutions()) {
 			Assert.NotNull(solution);
 			// TODO: verify correctness
-			Console.WriteLine(solution.Assignment);
+			_testOutputHelper.WriteLine(solution.Assignment.ToString());
 		}
 	}
 
-	public enum Color {
+	private enum Color {
 		Red,
 		Green,
 		Blue
@@ -169,7 +166,7 @@ public class UsageTests {
 		var queensland = prob.AddVariable(Enum.GetValues<Color>(), "Queensland");
 		var newSouth = prob.AddVariable(Enum.GetValues<Color>(), "New South Wales");
 		var victoria = prob.AddVariable(Enum.GetValues<Color>(), "Victoria");
-		var tansania = prob.AddVariable(Enum.GetValues<Color>(), "Tansania");
+		var _ = prob.AddVariable(Enum.GetValues<Color>(), "Tansania");
 
 		var neighbours = new[]{
 			(west, north),
@@ -184,7 +181,6 @@ public class UsageTests {
 		};
 
 		foreach (var pair in neighbours) {
-			// prob.AddConstraint((from a in pair.Item1 from b in pair.Item2 select a != b).Scope);
 			var x = from a in pair.Item1 from b in pair.Item2 select a != b;
 			x.Scope.Clear();
 			x.Scope.Add(pair.Item1);
@@ -197,13 +193,6 @@ public class UsageTests {
 		var solver = new AC3Solver(problem);
 		var solution = solver.Solutions().ToArray();
 
-		Console.WriteLine(string.Join("\n", solution.Select(x => x.Assignment.ToString())));
-	}
-
-	[Fact]
-	public void CompareToCspNet() {
-		var prob = new ProblemBuilder();
-		var vars = Enumerable.Range(1, 8).Select(i => prob.AddVariable<int>(Enumerable.Range(1, 8), $"Var {i}")).ToArray();
-		prob.AddConstraint(new AllDiffConstraint<int>(vars));
+		_testOutputHelper.WriteLine(string.Join("\n", solution.Select(x => x.Assignment.ToString())));
 	}
 }
