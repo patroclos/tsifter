@@ -10,6 +10,7 @@ nupkg/
 
 # Rider
 .idea
+*/*.DotSettings
 
 # User-specific files
 *.suo
@@ -35,3 +36,4 @@ msbuild.wrn
 
 # Visual Studio 2015
 .vs/
+

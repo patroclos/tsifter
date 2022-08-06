@@ -2,34 +2,32 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace csp {
-	public class Var<T> : IVariable<T> {
-		public readonly IEnumerable<T> Domain;
-		public readonly string? Name;
+namespace csp; 
 
-		Type IVariable.ValueType => typeof(T);
+public class Var<T> : IVariable<T> {
+	public readonly IEnumerable<T> Domain;
+	public readonly string? Name;
 
-		private List<IVariable>? _scope;
-		public List<IVariable> Scope => _scope ?? (_scope = new List<IVariable>(){this});
+	Type IVariable.ValueType => typeof(T);
 
-		IEnumerable<T> IVariable<T>.Domain => Domain;
+	private List<IVariable>? _scope;
+	public List<IVariable> Scope => _scope ??= new List<IVariable>{this};
 
-		IEnumerable<object> IVariable.Domain => (IEnumerable<object>)Domain.ToList().Cast<object>();
+	IEnumerable<T> IVariable<T>.Domain => Domain;
 
-		public Var(IEnumerable<T> domain, string? name = null) {
-			Domain = domain;
-			Name = name;
-		}
+	IEnumerable<object> IVariable.Domain => Domain.ToList().Cast<object>();
 
-		object? ITerm.Evaluate(Problem _, Assignment ass) => ass[this];
-
-		public override string ToString() => $"Var<{typeof(T).FullName}>" + (string.IsNullOrEmpty(Name) ? string.Empty : $" ('{Name}')");
+	public Var(IEnumerable<T> domain, string? name = null) {
+		Domain = domain;
+		Name = name;
 	}
 
-	public static class VarExtensions {
-		public static Dictionary<A, IVariable<V>> SelectVariableTable<A, V>(this IEnumerable<A> self, Func<A, IVariable<V>> map)
-			=> self.ToDictionary(a => a, map);
-	}
+	object? ITerm.Evaluate(Problem _, Assignment ass) => ass[this];
 
+	public override string ToString() => $"Var<{typeof(T).FullName}>" + (string.IsNullOrEmpty(Name) ? string.Empty : $" ('{Name}')");
 }
 
+public static class VarExtensions {
+	public static Dictionary<A, IVariable<V>> SelectVariableTable<A, V>(this IEnumerable<A> self, Func<A, IVariable<V>> map)
+		=> self.ToDictionary(a => a, map);
+}

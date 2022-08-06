@@ -1,17 +1,17 @@
-namespace csp {
-	public class Solution {
-		public readonly Problem Problem;
-		public readonly Assignment Assignment;
+namespace csp; 
 
-		public Solution(Problem problem, Assignment assignment) {
-			if(!assignment.IsCompleteFor(problem))
-				throw new System.InvalidOperationException("Cannot construct Solution from partial Assignment");
+public class Solution {
+	public readonly Problem Problem;
+	public readonly Assignment Assignment;
 
-			if(!problem.IsSatisfiedBy(assignment))
-				throw new System.InvalidOperationException("Cannot construct Solution from non-satisfactory Assignment");
+	public Solution(Problem problem, Assignment assignment) {
+		if(!assignment.IsCompleteFor(problem))
+			throw new System.InvalidOperationException("Cannot construct Solution from partial Assignment");
 
-			this.Problem = problem;
-			this.Assignment = assignment;
-		}
+		if(!problem.IsSatisfiedBy(assignment))
+			throw new System.InvalidOperationException("Cannot construct Solution from non-satisfactory Assignment");
+
+		Problem = problem;
+		Assignment = assignment;
 	}
 }
