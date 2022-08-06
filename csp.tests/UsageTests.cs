@@ -1,4 +1,5 @@
-using System;
+using System;
+
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,6 +7,15 @@ using Xunit;
 
 namespace csp.tests {
 	public class UsageTests {
+
+		/*
+		[Fact]
+		public void BinarizationExists() {
+			var prob = new ProblemBuilder();
+			var problem = prob.Build();
+			var bin = problem.ToBinaryProblem();
+		}
+		*/
 
 		[Fact]
 		public void UsecaseAB() {
@@ -82,22 +92,55 @@ namespace csp.tests {
 		[Fact]
 		public void SendMoreMoney() {
 			var prob = new ProblemBuilder();
-			var domain = Enumerable.Range(0, 10000);
+			var domain = Enumerable.Range(0, 10);
 
 			var vars = "send more money".ToCharArray()
 				.Distinct()
+				.Where(x => x != ' ')
 				.SelectVariableTable(c => prob.AddVariable<int>(domain, $"'{c}'"));
 			var carries = Enumerable.Range(0, 4).Select(i => prob.AddVariable<int>(Enumerable.Range(0, 10))).ToList();
 
-			prob.AddConstraint(new AllDiffConstraint<int>(vars.Values.ToArray()));
-			prob.AddConstraint(from d in vars['d'] from e in vars['e'] from y in vars['y'] from c0 in carries[0] select d + e == (10 * c0) + y);
-			prob.AddConstraint(from n in vars['n'] from r in vars['r'] from e in vars['e'] from c0 in carries[0] from c1 in carries[1] select n + r + c0 == (10 * c1) + e);
-			prob.AddConstraint(from e in vars['e'] from o in vars['o'] from n in vars['n'] from c1 in carries[1] from c2 in carries[2] select e + o + c1 == (10 * c2) + n);
-			prob.AddConstraint(from s in vars['s'] from m in vars['m'] from o in vars['o'] from c2 in carries[2] from c3 in carries[3] select s + m + c2 == (10 * c3) + o);
-			prob.AddConstraint(from c3 in carries[3] from m in vars['m'] select c3 == m);
+			prob.AddConstraint(new AllDiffConstraint<int>(vars.Values.ToArray()).SetScope(vars.Values.ToArray()));
+			prob.AddConstraint(
+					(from d in vars['d']
+					 from e in vars['e']
+					 from y in vars['y']
+					 from c0 in carries[0]
+					 select d + e == (10 * c0) + y)
+					.SetScope(vars['d'], vars['e'], vars['y'], carries[0])
+			);
+			prob.AddConstraint(
+					(from n in vars['n']
+					 from r in vars['r']
+					 from e in vars['e']
+					 from c0 in carries[0]
+					 from c1 in carries[1]
+					 select n + r + c0 == (10 * c1) + e)
+					.SetScope(vars['n'], vars['r'], vars['e'], carries[0], carries[1])
+			);
+			prob.AddConstraint(
+					(from e in vars['e']
+					 from o in vars['o']
+					 from n in vars['n']
+					 from c1 in carries[1]
+					 from c2 in carries[2]
+					 select e + o + c1 == (10 * c2) + n)
+					.SetScope(vars['e'], vars['o'], vars['n'], carries[1], carries[2])
+			);
+			prob.AddConstraint(
+					(from s in vars['s']
+					 from m in vars['m']
+					 from o in vars['o']
+					 from c2 in carries[2]
+					 from c3 in carries[3]
+					 select s + m + c2 == (10 * c3) + o)
+					.SetScope(vars['s'], vars['m'], vars['o'], carries[2], carries[3])
 
-			var (a,b) = Tuple.Create<int, int>(5,5);
-
+			);
+			prob.AddConstraint(
+					(from c3 in carries[3] from m in vars['m'] select c3 == m)
+					.SetScope(carries[3], vars['m'])
+			);
 
 			var problem = prob.Build();
 
@@ -119,13 +162,13 @@ namespace csp.tests {
 		[Fact]
 		public void Australia() {
 			var prob = new ProblemBuilder();
-			var west = prob.AddVariable<Color>(Enum.GetValues<Color>(), "Western Australia");
-			var north = prob.AddVariable<Color>(Enum.GetValues<Color>(), "Northern Territory");
-			var south = prob.AddVariable<Color>(Enum.GetValues<Color>(), "South Australia");
-			var queensland = prob.AddVariable<Color>(Enum.GetValues<Color>(), "Queensland");
-			var newSouth = prob.AddVariable<Color>(Enum.GetValues<Color>(), "New South Wales");
-			var victoria = prob.AddVariable<Color>(Enum.GetValues<Color>(), "Victoria");
-			var tansania = prob.AddVariable<Color>(Enum.GetValues<Color>(), "Tansania");
+			var west = prob.AddVariable(Enum.GetValues<Color>(), "Western Australia");
+			var north = prob.AddVariable(Enum.GetValues<Color>(), "Northern Territory");
+			var south = prob.AddVariable(Enum.GetValues<Color>(), "South Australia");
+			var queensland = prob.AddVariable(Enum.GetValues<Color>(), "Queensland");
+			var newSouth = prob.AddVariable(Enum.GetValues<Color>(), "New South Wales");
+			var victoria = prob.AddVariable(Enum.GetValues<Color>(), "Victoria");
+			var tansania = prob.AddVariable(Enum.GetValues<Color>(), "Tansania");
 
 			var neighbours = new[]{
 				(west, north),

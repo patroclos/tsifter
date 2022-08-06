@@ -9,7 +9,7 @@ namespace csp {
 
 		// ImmutableList<IVariable> ITerm.Scope => new []{this}.ToImmutableList();
 
-		object ITerm.Evaluate(Problem _, Assignment a) {
+		object? ITerm.Evaluate(Problem _, Assignment a) {
 			return a[this];
 		}
 	}

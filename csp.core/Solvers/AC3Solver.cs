@@ -119,7 +119,7 @@ namespace csp {
 				if (object.ReferenceEquals(obj, null))
 					return false;
 
-				return obj is Arc a ? Equals(a) : false;
+				return obj is Arc a && Equals(a);
 			}
 
 			public override int GetHashCode() => HashCode.Combine(From, To, Constraint);

@@ -1,10 +1,9 @@
+// unset
+
 using System.Collections.Generic;
 
-namespace csp {
-	public interface IConstraint : ITerm<bool> {
-		bool IsSatisfiedBy(Problem p, Assignment a);
-	}
-
+namespace csp
+{
 	public class TermConstraint : IConstraint {
 		public readonly ITerm ConstraintTerm;
 
@@ -14,7 +13,7 @@ namespace csp {
 
 		public List<IVariable> Scope => ConstraintTerm.Scope;
 
-		public bool Evaluate(Problem p, Assignment a) => (bool)ConstraintTerm.Evaluate(p, a);
+		public bool Evaluate(Problem p, Assignment a) => (bool)ConstraintTerm.Evaluate(p, a)!;
 
 		public bool IsSatisfiedBy(Problem p, Assignment a) => Evaluate(p, a);
 	}

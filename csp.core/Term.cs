@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
@@ -38,10 +39,13 @@ namespace csp {
 				return list;
 			}
 
-			for (var i = 1; i < terms.Length; i++)
+			for (var i = 1; i < terms.Length; i++) {
+				var index = i;
 				first = from agg in first
-						from tail in terms[i]
+						from tail in terms[index]
 						select AddTo(agg, tail);
+			}
+			first.Scope.AddRange(terms.SelectMany(t=>t.Scope));
 
 			return from lst in first select lst.ToArray();
 		}

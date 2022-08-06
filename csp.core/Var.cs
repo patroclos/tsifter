@@ -21,7 +21,7 @@ namespace csp {
 			Name = name;
 		}
 
-		object ITerm.Evaluate(Problem _, Assignment ass) => ass[this];
+		object? ITerm.Evaluate(Problem _, Assignment ass) => ass[this];
 
 		public override string ToString() => $"Var<{typeof(T).FullName}>" + (string.IsNullOrEmpty(Name) ? string.Empty : $" ('{Name}')");
 	}
