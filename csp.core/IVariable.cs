@@ -4,6 +4,7 @@ using System.Collections.Generic;
 namespace csp; 
 
 public interface IVariable : ITerm {
+	string Name { get; }
 	Type ValueType { get; }
 	IEnumerable<object> Domain { get; }
 

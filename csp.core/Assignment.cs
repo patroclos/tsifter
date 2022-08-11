@@ -24,5 +24,5 @@ public class Assignment {
 
 	public bool IsCompleteFor(Problem p) => p.Variables.All(Values.ContainsKey);
 
-	public override string ToString() => "{ " + string.Join(", ", Values.Select(kv => $"{kv.Key} => {kv.Value}")) + "}";
+	public override string ToString() => "{ " + string.Join(", ", Values.Select(kv => $"{kv.Key.Name}: {kv.Value}")) + "}";
 }

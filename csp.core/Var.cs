@@ -6,25 +6,26 @@ namespace csp;
 
 public class Var<T> : IVariable<T> {
 	public readonly IEnumerable<T> Domain;
-	public readonly string? Name;
+	private readonly string _name;
+	public string Name => _name;
 
 	Type IVariable.ValueType => typeof(T);
 
-	private List<IVariable>? _scope;
-	public List<IVariable> Scope => _scope ??= new List<IVariable>{this};
+	private HashSet<IVariable>? _scope;
+	public HashSet<IVariable> Scope => _scope ??= new() {this};
 
 	IEnumerable<T> IVariable<T>.Domain => Domain;
 
 	IEnumerable<object> IVariable.Domain => Domain.ToList().Cast<object>();
 
-	public Var(IEnumerable<T> domain, string? name = null) {
+	public Var(IEnumerable<T> domain, string? name = $"variable({nameof(T)})") {
 		Domain = domain;
-		Name = name;
+		_name = name;
 	}
 
 	object? ITerm.Evaluate(Problem _, Assignment ass) => ass[this];
 
-	public override string ToString() => $"Var<{typeof(T).FullName}>" + (string.IsNullOrEmpty(Name) ? string.Empty : $" ('{Name}')");
+	public override string ToString() => $"Var<{typeof(T).FullName}>" + (string.IsNullOrEmpty(_name) ? string.Empty : $" ('{_name}')");
 }
 
 public static class VarExtensions {

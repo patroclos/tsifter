@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace csp; 
 
@@ -46,15 +47,16 @@ public static class TermExtensions {
 
 	public static ITerm<T> SetScope<T>(this ITerm<T> self, params IVariable[] scope) {
 		self.Scope.Clear();
-		self.Scope.AddRange(scope);
+		foreach(var s in scope)
+			self.Scope.Add(s);
 
 		return self;
 	}
 
-	public static List<IVariable> Scope(params ITerm[] terms)
+	public static HashSet<IVariable> Scope(params ITerm[] terms)
 		=> terms.SelectMany(t => t.Scope)
 			.Distinct()
-			.ToList();
+			.ToHashSet();
 
 	public static ITerm<bool> Gt<T>(this ITerm<T> a, T val) where T : IComparable<T>
 		=> from A in a select A.CompareTo(val) > 0;

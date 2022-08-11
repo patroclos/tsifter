@@ -95,14 +95,15 @@ public sealed class AC3Solver {
 
 	private void InitializeArcs() {
 		foreach (var con in _problem.Constraints) {
+			var scopes = con.Scope.ToArray();
 			var a = new Arc {
-				From = con.Scope[0],
-				To = con.Scope[1],
+				From = scopes[0],
+				To = scopes[1],
 				Constraint = con
 			};
 			var b = new Arc {
-				From = con.Scope[1],
-				To = con.Scope[0],
+				From = scopes[1],
+				To = scopes[0],
 				Constraint = con
 			};
 

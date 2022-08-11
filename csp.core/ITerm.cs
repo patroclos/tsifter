@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace csp;
 
 public interface ITerm {
-	List<IVariable> Scope { get; }
+	HashSet<IVariable> Scope { get; }
 
 	object? Evaluate(Problem p, Assignment a);
 }

@@ -5,15 +5,15 @@ using System.Collections.Generic;
 namespace csp; 
 
 public class DelegateTerm<T> : ITerm<T> {
-	internal readonly List<IVariable> ScopeSet;
+	internal readonly HashSet<IVariable> ScopeSet;
 	private readonly Func<DelegateTerm<T>, Problem, Assignment, T> _reader;
 
-	public DelegateTerm(List<IVariable> deps, Func<DelegateTerm<T>, Problem, Assignment, T> reader) {
+	public DelegateTerm(HashSet<IVariable> deps, Func<DelegateTerm<T>, Problem, Assignment, T> reader) {
 		ScopeSet = deps;
 		_reader = reader;
 	}
 
-	public List<IVariable> Scope => ScopeSet;
+	public HashSet<IVariable> Scope => ScopeSet;
 
 	public T Evaluate(Problem p, Assignment a) {
 		return _reader(this, p, a);
@@ -23,7 +23,7 @@ public class DelegateTerm<T> : ITerm<T> {
 public static class Term {
 	public static ITerm<T> Return<T>(T val) {
 		return new DelegateTerm<T>(
-			new List<IVariable>(0),
+			new (0),
 			(t, p, a) => val
 		);
 	}
@@ -45,7 +45,9 @@ public static class Term {
 				from tail in terms[index]
 				select AddTo(agg, tail);
 		}
-		first.Scope.AddRange(terms.SelectMany(t=>t.Scope));
+
+		foreach (var s in terms.SelectMany(t => t.Scope).Distinct())
+			first.Scope.Add(s);
 
 		return from lst in first select lst.ToArray();
 	}

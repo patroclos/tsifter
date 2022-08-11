@@ -9,7 +9,7 @@ public class TermConstraint : IConstraint {
 		ConstraintTerm = term;
 	}
 
-	public List<IVariable> Scope => ConstraintTerm.Scope;
+	public HashSet<IVariable> Scope => ConstraintTerm.Scope;
 
 	public bool Evaluate(Problem p, Assignment a) => (bool)ConstraintTerm.Evaluate(p, a)!;
 
